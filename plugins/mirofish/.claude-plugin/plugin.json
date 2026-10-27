@@ -1,0 +1,23 @@
+{
+  "name": "mirofish",
+  "displayName": "MiroFish Swarm Intelligence",
+  "version": "1.0.0",
+  "description": "Run MiroFish multi-agent swarm simulations directly inside Claude Web. Extract actor knowledge graphs from seed texts or uploaded files, spawn diverse OASIS-style social personas across dual platforms, rehearse multi-round emergent trajectories, inject God's-eye counterfactual variables, interview simulated agents, and build interactive visual dashboards.",
+  "author": {
+    "name": "osa822630-droid",
+    "url": "https://github.com/osa822630-droid/MiroFish"
+  },
+  "homepage": "https://github.com/osa822630-droid/MiroFish",
+  "repository": "https://github.com/osa822630-droid/MiroFish",
+  "license": "AGPL-3.0-only",
+  "keywords": [
+    "mirofish",
+    "swarm-intelligence",
+    "multi-agent",
+    "simulation",
+    "prediction",
+    "scenario-analysis",
+    "counterfactual",
+    "public-opinion"
+  ]
+}

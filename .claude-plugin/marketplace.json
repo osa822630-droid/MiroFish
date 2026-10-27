@@ -1,0 +1,28 @@
+{
+  "name": "mirofish-marketplace",
+  "description": "MiroFish Swarm Intelligence plugin marketplace for Claude Web, Claude Desktop, Cowork, and Claude Code — multi-agent social simulation, scenario prediction, counterfactual testing, and interactive world rehearsal.",
+  "version": "1.0.0",
+  "owner": {
+    "name": "osa822630-droid",
+    "url": "https://github.com/osa822630-droid/MiroFish"
+  },
+  "plugins": [
+    {
+      "name": "mirofish",
+      "displayName": "MiroFish Swarm Intelligence",
+      "source": "./plugins/mirofish",
+      "description": "Run MiroFish multi-agent swarm simulations directly inside Claude Web. Extract actor knowledge graphs from seed texts or uploaded files, spawn diverse OASIS-style social personas across dual platforms, rehearse multi-round emergent trajectories, inject God's-eye counterfactual variables, interview simulated agents, and build interactive visual dashboards.",
+      "category": "simulation",
+      "tags": [
+        "mirofish",
+        "simulation",
+        "prediction",
+        "swarm-intelligence",
+        "multi-agent",
+        "scenario-planning",
+        "public-opinion",
+        "counterfactual"
+      ]
+    }
+  ]
+}

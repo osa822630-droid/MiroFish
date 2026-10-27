@@ -91,6 +91,21 @@ Click the image to watch MiroFish's deep prediction of the lost ending based on 
 4. **Report Generation**: ReportAgent with rich toolset for deep interaction with post-simulation environment
 5. **Deep Interaction**: Chat with any agent in the simulated world & Interact with ReportAgent
 
+## 🧩 Add to Claude Web (Plugin Marketplace)
+
+This repository is configured as a **Claude Plugin Marketplace** ready to be added directly in **Claude Web (`claude.ai` — including the Free plan)** without needing Claude Code, local servers, or external API keys:
+
+1. Open [claude.ai](https://claude.ai) and go to **Customize** in the left sidebar → **Plugins**.
+2. Click **Add** → **Add marketplace**.
+3. Enter `osa822630-droid/MiroFish` (or `https://github.com/osa822630-droid/MiroFish`) and click **Sync**.
+4. Click **Add** next to **MiroFish Swarm Intelligence**.
+5. Start any chat on Claude Web, attach seed documents or describe a scenario in any language (Arabic, English, Chinese, etc.), or type `/` (or click `+`) to use:
+   - `simulate` — Full 5-stage multi-agent swarm simulation & future prediction report
+   - `build-graph` — Social-actor ontology, knowledge graph & OASIS persona extraction
+   - `inject-variable` — God's-eye counterfactual & shock-event testing
+   - `interview-agents` — In-character interviews & multi-faction focus groups
+   - `visualize-world` — Self-contained interactive HTML/SVG Artifact dashboard
+
 ## 🚀 Quick Start
 
 ### Option 1: Source Code Deployment (Recommended)
