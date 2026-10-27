@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MiroFish Swarm Intelligence Dashboard</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #131b33;
+      --border: #243156;
+      --text: #e8edf8;
+      --muted: #95a3c4;
+      --accent: #38bdf8;
+      --pos: #10b981;
+      --neg: #ef4444;
+      --neu: #f59e0b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Tahoma, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 20px;
+      line-height: 1.5;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+    }
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    .kpi-label { font-size: 12px; color: var(--muted); }
+    .kpi-val { font-size: 24px; font-weight: 700; margin-top: 4px; }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .tab-btn {
+      background: var(--panel);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .tab-btn.active {
+      color: var(--text);
+      border-color: var(--accent);
+      background: rgba(56, 189, 248, 0.14);
+    }
+    .section { display: none; }
+    .section.active { display: block; }
+    .traj-row { margin-bottom: 12px; }
+    .bar-track {
+      height: 8px;
+      background: #1d2847;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+    .bar-fill { height: 100%; background: var(--accent); border-radius: 999px; }
+    .graph-layout {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 14px;
+    }
+    @media (max-width: 720px) { .graph-layout { grid-template-columns: 1fr; } }
+    .post {
+      border-bottom: 1px solid var(--border);
+      padding: 12px 0;
+    }
+    .post:last-child { border-bottom: none; }
+    .post-meta { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <span class="badge">MiroFish Swarm Rehearsal</span>
+      <h1 id="sim-title" style="font-size: 20px; margin-top: 6px;">Scenario Prediction Dashboard</h1>
+      <p id="sim-verdict" style="color: var(--muted); font-size: 14px; margin-top: 4px;"></p>
+    </div>
+  </div>
+
+  <div class="kpis" id="kpi-grid"></div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="overview">Trajectories</button>
+    <button class="tab-btn" data-tab="graph">Knowledge Graph</button>
+    <button class="tab-btn" data-tab="timeline">72h Dynamics</button>
+    <button class="tab-btn" data-tab="feed">Swarm Feed</button>
+  </div>
+
+  <div id="tab-overview" class="section active card"></div>
+
+  <div id="tab-graph" class="section">
+    <div class="graph-layout">
+      <div class="card">
+        <svg id="graph-svg" viewBox="0 0 600 360" style="width:100%; height:auto;"></svg>
+      </div>
+      <div class="card" id="actor-detail">
+        <h3 style="font-size:15px; margin-bottom:8px;">Select an Actor Node</h3>
+        <p style="color:var(--muted); font-size:13px;">Click any node in the graph to inspect its ontology type, stance shift, and core incentive.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-timeline" class="section card">
+    <svg id="timeline-svg" viewBox="0 0 680 280" style="width:100%; height:auto;"></svg>
+  </div>
+
+  <div id="tab-feed" class="section card" id="feed-box"></div>
+
+  <script>
+    // Replace SIM_DATA with scenario-specific simulation outputs when rendering Artifact
+    const SIM_DATA = {
+      title: "Sample Swarm Scenario",
+      verdict: "Rapid microblog backlash peaks at Hour 18 before forum scrutiny stabilizes swing cohorts.",
+      kpis: [
+        { label: "Simulated Agents", value: "180" },
+        { label: "Final Mean Stance", value: "-0.23" },
+        { label: "Polarization Index", value: "0.41" },
+        { label: "Primary Confidence", value: "64%" }
+      ],
+      trajectories: [
+        { name: "Primary: Negotiated Concession", pct: 64, desc: "Targeted relief defuses core critics within 48h." },
+        { name: "Secondary: Prolonged Boycott", pct: 24, desc: "High-influence creators coordinate migration." },
+        { name: "Tail Risk: Regulatory Inquiry", pct: 12, desc: "Consumer complaints trigger formal review." }
+      ],
+      nodes: [
+        { id: "n1", label: "Power Users", type: "CustomerSegment", x: 150, y: 110, stance: -0.45, init: -0.30, stake: "Workflow cost predictability" },
+        { id: "n2", label: "Brand Official", type: "Company", x: 310, y: 180, stance: 0.70, init: 0.80, stake: "ARR expansion & retention" },
+        { id: "n3", label: "Tech Media", type: "MediaOutlet", x: 460, y: 110, stance: -0.25, init: -0.15, stake: "Breaking scrutiny & readership" },
+        { id: "n4", label: "Enterprise Buyers", type: "Organization", x: 310, y: 290, stance: 0.20, init: 0.30, stake: "Compliance & SLA stability" }
+      ],
+      edges: [
+        { from: "n1", to: "n2", label: "CHALLENGES" },
+        { from: "n3", to: "n1", label: "AMPLIFIES" },
+        { from: "n4", to: "n2", label: "DEPENDS_ON" }
+      ],
+      timeline: [
+        { hour: 0, stance: -0.10, pol: 0.22 },
+        { hour: 12, stance: -0.31, pol: 0.48 },
+        { hour: 24, stance: -0.36, pol: 0.52 },
+        { hour: 48, stance: -0.26, pol: 0.43 },
+        { hour: 72, stance: -0.23, pol: 0.41 }
+      ],
+      posts: [
+        { hour: 6, surface: "Microblog", author: "@DevLead_99", text: "Changing pricing tiers overnight breaks trust with early adopters." },
+        { hour: 18, surface: "Forum", author: "u/InfraArchitect", text: "Ran the TCO numbers: enterprise teams break even, solo builders take a 32% hit." }
+      ]
+    };
+
+    document.getElementById("sim-title").textContent = SIM_DATA.title;
+    document.getElementById("sim-verdict").textContent = SIM_DATA.verdict;
+
+    const kpiGrid = document.getElementById("kpi-grid");
+    SIM_DATA.kpis.forEach(k => {
+      const d = document.createElement("div");
+      d.className = "card";
+      d.innerHTML = `<div class="kpi-label">${k.label}</div><div class="kpi-val">${k.value}</div>`;
+      kpiGrid.appendChild(d);
+    });
+
+    const ov = document.getElementById("tab-overview");
+    ov.innerHTML = SIM_DATA.trajectories.map(t => `
+      <div class="traj-row">
+        <div style="display:flex;justify-content:space-between;font-weight:600;font-size:14px;">
+          <span>${t.name}</span><span>${t.pct}%</span>
+        </div>
+        <div style="font-size:13px;color:var(--muted);">${t.desc}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${t.pct}%"></div></div>
+      </div>
+    `).join("");
+
+    // Render SVG Graph
+    const gSvg = document.getElementById("graph-svg");
+    const nodeMap = Object.fromEntries(SIM_DATA.nodes.map(n => [n.id, n]));
+    const colorOf = s => s >= 0.2 ? "#10b981" : (s <= -0.2 ? "#ef4444" : "#f59e0b");
+    let gHtml = SIM_DATA.edges.map(e => {
+      const a = nodeMap[e.from], b = nodeMap[e.to];
+      const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+      return `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#3b4d7a" stroke-width="2"/>
+              <text x="${mx}" y="${my - 6}" fill="#95a3c4" font-size="10" text-anchor="middle">${e.label}</text>`;
+    }).join("");
+    gHtml += SIM_DATA.nodes.map(n => `
+      <g class="actor-node" data-id="${n.id}" style="cursor:pointer">
+        <circle cx="${n.x}" cy="${n.y}" r="22" fill="${colorOf(n.stance)}" fill-opacity="0.22" stroke="${colorOf(n.stance)}" stroke-width="2.5"/>
+        <text x="${n.x}" y="${n.y + 36}" fill="#e8edf8" font-size="12" font-weight="600" text-anchor="middle">${n.label}</text>
+      </g>
+    `).join("");
+    gSvg.innerHTML = gHtml;
+
+    gSvg.querySelectorAll(".actor-node").forEach(el => {
+      el.addEventListener("click", () => {
+        const n = nodeMap[el.dataset.id];
+        document.getElementById("actor-detail").innerHTML = `
+          <span class="badge">${n.type}</span>
+          <h3 style="font-size:16px;margin:8px 0;">${n.label}</h3>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:6px;">Initial Stance: <b>${n.init}</b> → Final: <b>${n.stance}</b></p>
+          <p style="font-size:13px;"><b>Core Incentive:</b> ${n.stake}</p>
+        `;
+      });
+    });
+
+    // Render Timeline Chart
+    const tSvg = document.getElementById("timeline-svg");
+    const pts = SIM_DATA.timeline;
+    const xOf = (i) => 55 + (i / Math.max(1, pts.length - 1)) * 585;
+    const yStance = (s) => 140 - s * 100;
+    const yPol = (p) => 240 - p * 200;
+    const sPath = pts.map((p, i) => `${i === 0 ? "M" : "L"}${xOf(i)},${yStance(p.stance)}`).join(" ");
+    const pPath = pts.map((p, i) => `${i === 0 ? "M" : "L"}${xOf(i)},${yPol(p.pol)}`).join(" ");
+    tSvg.innerHTML = `
+      <line x1="55" y1="140" x2="640" y2="140" stroke="#243156" stroke-dasharray="4 4"/>
+      <path d="${sPath}" fill="none" stroke="#38bdf8" stroke-width="3"/>
+      <path d="${pPath}" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="6 4"/>
+      <text x="60" y="24" fill="#38bdf8" font-size="12" font-weight="600">Mean Stance (-1 to +1)</text>
+      <text x="230" y="24" fill="#f59e0b" font-size="12" font-weight="600">Polarization Index (0 to 1)</text>
+      ${pts.map((p, i) => `<circle cx="${xOf(i)}" cy="${yStance(p.stance)}" r="4" fill="#38bdf8"/>
+        <text x="${xOf(i)}" y="268" fill="#95a3c4" font-size="11" text-anchor="middle">${p.hour}h</text>`).join("")}
+    `;
+
+    // Render Feed
+    document.getElementById("tab-feed").innerHTML = SIM_DATA.posts.map(p => `
+      <div class="post">
+        <div class="post-meta">Hour ${p.hour} · <b>${p.surface}</b> · ${p.author}</div>
+        <div style="font-size:14px;">"${p.text}"</div>
+      </div>
+    `).join("");
+
+    // Tab switching
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
+      });
+    });
+  </script>
+</body>
+</html>

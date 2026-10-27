@@ -2,6 +2,8 @@
 .github
 .gitignore
 .cursor
+.claude-plugin
+plugins
 .DS_Store
 .env
 
